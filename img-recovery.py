@@ -1,34 +1,17 @@
 #! /bin/env python
 
-# Please note: This sript cannot make a individuell save-location for the image, it will always be the folder in which you currently are.
-# In the same way this script can only be executed in this folder, where the image is in.
+"""After the ./ you have to type in the save/write path. For example /home/USER/FOLDER/NAME.img.gz"""
 
 import subprocess
 import sys
 
 
-def save_img_sda():
-    subprocess.run(["sudo", "dd", "if=/dev/sda", "|", "gzip", ">", "backup.img.gz"], stdout=subprocess.PIPE)
+def save_img_sdX(literal, image_path):
+    subprocess.run(["sudo", "dd", f"if=/dev/sd{literal}", "|", "gzip", ">", image_path], stdout=subprocess.PIPE)
 
 
-def write_on_sda():
-    subprocess.run(["sudo", "cat", "backup.img.gz", "|", "gunzip", "|", "dd", "of=/dev/sda"], stdout=subprocess.PIPE)
-
-
-def save_img_sdb():
-    subprocess.run(["sudo", "dd", "if=/dev/sdb", "|", "gzip", ">", "backup.img.gz"], stdout=subprocess.PIPE)
-
-
-def write_on_sdb():
-    subprocess.run(["sudo", "cat", "backup.img.gz", "|", "gunzip", "|", "dd", "of=/dev/sdb"], stdout=subprocess.PIPE)
-
-
-def save_img_sdc():
-    subprocess.run(["sudo", "dd", "if=/dev/sdc", "|", "gzip", ">", "backup.img.gz"], stdout=subprocess.PIPE)
-
-
-def write_on_sdc():
-    subprocess.run(["sudo", "cat", "backup.img.gz", "|", "gunzip", "|", "dd", "of=/dev/sdc"], stdout=subprocess.PIPE)
+def write_on_sdX(literal, image_path):
+    subprocess.run(["sudo", "cat", image_path, "|", "gunzip", "|", "dd", f"of=/dev/sd{literal}"])
 
 
 def lsblk():
@@ -40,61 +23,45 @@ def end():
     sys.exit(0)
 
 
-def start():    
-    print("What do you want? Save or write?")
+def start():
+    if len(sys.argv) > 1:
+        image_path = sys.argv[1]
+    else:
+        print("No image-path given, program will end.\n", __doc__)
+        end()
+        return
+
+    print("What do you want? Save or write?\n")
     print("1. Save image")
-    print("2. Write image")
+    print("2. Write image\n")
     print("99. Quit")
     user_input1 = int(input("Choose a number: "))
-    print()
 
     if user_input1 == 1:
         lsblk()
+        print("\nWhere to save? Prompt: <sdX> Choose a literal for X, like a.")
+        user_input2 = input("a-z, q for quit.")
         print()
-        print("Where to save? Prompt: <sdX> Choose a Buchstabe for X, like a.")
-        user_input2 = input("a-c, q for quit.")
-        print()
-        if user_input2 == a:
-            save_img_sda()
-
-        elif user_input2 == b:
-            save_img_sdb()
-        
-        elif user_input2 == c:
-            save_img_sdc()
-
-        elif user_input2 == q:
+        if user_input2 == 'q':
             end()
-        
+
         else:
-            pass
+            save_img_sdX(user_input2, image_path)
 
     elif user_input1 == 2:
         lsblk()
         print()
-        print("Where to write? Promt: <sdX> Choose a Buchstabe for X, like a.")
-        user_input3 = input("a-c, q for quit.")
+        print("Where to write? Prompt: <sdX> Choose a literal for X, like a.")
+        user_input3 = input("a-z, q for quit.")
         print()
-        if user_input3 == a:
-            write_on_sda()
-
-        elif user_input3 == b:
-            write_on_sdb()
-        
-        elif user_input3 == c:
-            write_on_sdc()
-            
-        elif user_input2 == q:
+        if user_input3 == 'q':
             end()
-        
+
         else:
-            pass
+            write_on_sdX(user_input3, image_path)
 
     elif user_input1 == 99:
         end()
-
-    else:
-        pass
 
 
 if __name__ == "__main__":
